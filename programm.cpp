@@ -3,6 +3,8 @@
 #include <fstream>
 #include <cstdio>
 #include <limits>
+#include <cstring>  
+#include <cerrno>
 
 using namespace std;
 
@@ -21,47 +23,67 @@ int main(){
         }
 
         void deleteFunc(){
-            cout << "Enter file name to delete: " << endl;
-            char file[20];
+            cout << "Enter file name or file path to delete: " << endl;
+            char file[256];
             cin >> file;
             int result = remove(file);
-            cout << result;
+            if(result == 0){
+                cout << "File deleted." << endl;
+            }
+            else{
+                cerr << "Error deleting file: " << strerror(errno) << endl;
+            }
             startFunc();
-
         }
 
         void readFunc(){
-            cout << "Enter file name you want open: " << endl;
+            cout << "Enter file name or file path you want open: " << endl;
             cin >> file_name;
             string file_text;
             ifstream MyReadFile(file_name);
-            while (getline(MyReadFile, file_text)) {
-            cout << file_text << endl;
+            if(MyReadFile.fail()){
+                cerr << "Error opening file:" << strerror(errno) << endl;
+            }
+            else{
+                while (getline(MyReadFile, file_text)) {
+                    cout << file_text << endl;
+                }
             }
             MyReadFile.close();
             startFunc();
         }
 
         void writeFunc(){
-            cout << "Write file name you want to write to: " << endl;
+            cout << "Write file name or file path you want to write to: " << endl;
             cin >> file_name;
             ofstream MyFile(file_name);
-            cout << "Enter text and end it with ';': " << endl;
-            getline(cin, text, ';');
-            MyFile << text;
+            if(MyFile.fail()){
+                cerr << "Error opening file:" << strerror(errno) << endl;
+            }
+            else{
+                cout << "Enter text and end it with ';': " << endl;
+                getline(cin, text, ';');
+                MyFile << text;
+            }
             MyFile.close();
             startFunc();
         }
 
         void createFunc(){
-            cout << "Enter file path: " << endl;
-            getline(cin, file_path);
+            cout << "Enter file path with slash at the end: " << endl;
             cin.ignore(numeric_limits<streamsize>::max(),'\n');
-            cout << "Enter file name: " << endl;
+            getline(cin, file_path);
+            cout << "Enter file name with extension: " << endl;
             cin >> file_name;
             file_ready = file_path + file_name;
-            cout << file_ready;
             ofstream outfile(file_ready);
+            if(outfile.fail()){
+                cerr << "Error creating file: " << strerror(errno) << endl;
+            }
+            else{
+                cout << "File created." << endl;
+                cout << file_ready << endl;
+            }
             outfile.close();
             startFunc();
         };
